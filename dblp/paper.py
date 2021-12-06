@@ -8,11 +8,12 @@ logger = logging.getLogger("dblp-retriever_logger")
 class Paper(object):
     """ Paper metadata from DBLP. """
 
-    def __init__(self, venue, year, identifier, heading, title, authors, page_range, electronic_edition):
+    def __init__(self, venue, year, identifier, heading, paper_id, title, authors, page_range, electronic_edition):
         self.venue = venue
         self.year = year
         self.identifier = identifier
         self.heading = heading
+        self.paper_id = paper_id
         self.title = title
         self.authors = authors
         self.article_number = -1
@@ -74,19 +75,20 @@ class Paper(object):
 
     def get_column_values(self, with_pages=False):
         if with_pages:
-            return [self.venue, self.year, self.identifier, self.heading, self.title, self.authors, self.page_range,
-                    self.length, self.electronic_edition, self.comment]
+            return [self.venue, self.year, self.identifier, self.heading, self.paper_id, self.title, self.authors,
+                    self.page_range, self.length, self.electronic_edition, self.comment]
         else:
-            return [self.venue, self.year, self.identifier, self.heading, self.title, self.authors,
+            return [self.venue, self.year, self.identifier, self.heading, self.paper_id, self.title, self.authors,
                     self.electronic_edition, self.comment]
 
     @classmethod
     def get_column_names(cls, with_pages=False):
         if with_pages:
-            return ["venue", "year", "identifier", "heading", "title", "authors", "page_range", "length",
+            return ["venue", "year", "identifier", "heading", "paper_id", "title", "authors", "page_range", "length",
                     "electronic_edition", "comment"]
         else:
-            return ["venue", "year", "identifier", "heading", "title", "authors", "electronic_edition", "comment"]
+            return ["venue", "year", "identifier", "heading", "paper_id", "title", "authors", "electronic_edition",
+                    "comment"]
 
     @classmethod
     def split_page_range(cls, page_range):

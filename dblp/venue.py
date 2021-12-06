@@ -118,11 +118,14 @@ class Venue(object):
                         else:
                             authors = "; ".join(authors)
 
+                        paper_id = item.attrib['id']
+
                         self.papers.append(Paper(
                             self.name,
                             year,
                             self.identifier,
                             current_heading,
+                            paper_id,
                             title,
                             authors,
                             pages,
