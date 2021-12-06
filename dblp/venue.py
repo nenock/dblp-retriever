@@ -33,12 +33,28 @@ class Venue(object):
                 logger.info("Successfully retrieved TOC of venue: " + str(self))
 
                 tree = html.fromstring(response.content)
-                items = tree.xpath('//header[not(@class)]/h2 | //header[not(@class)]/h3 | //ul[@class="publ-list"]/li')
+                items = tree.xpath('//header[not(@class)]/h2 | '
+                                   '//header[not(@class)]/h3 | '
+                                   '//li[contains(@class, "entry")]')
 
                 current_heading = ""
 
                 for item in items:
                     if item.tag == "h2" or item.tag == "h3":
+                        # Derive publication year for journals
+                        if 'journals' in self.identifier:
+                            # For journals, the year is given last in the heading
+                            year = item.xpath("descendant-or-self::*/text()")
+                            if len(year) > 0:
+                                year = year[0].strip().split(" ")[-1]
+                            elif self.year:
+                                year = self.year
+                            else:
+                                year = ""
+                                logger.warning(
+                                    "No year found for " + self.uri + "#" + item.xpath('@id')[0] +
+                                    ". Please specify manually in input column 'year'.")
+
                         heading = item.xpath("descendant-or-self::*/text()")
                         if len(heading) > 0:
                             current_heading = re.sub(r'\s+', ' ',  # unify whitespaces/ remove newlines
@@ -46,14 +62,26 @@ class Venue(object):
                         else:
                             current_heading = ""
                     elif item.tag == "li":
+                        # Entries without heading are not listed, see https://dblp.org/db/conf/vldb/vldb2007.html e.g.
                         if current_heading == "":
-                            # the following only works for conferences, not for journals
-                            # year = item.xpath('div[contains(@class, "data")]/span[@itemprop="datePublished"]/text()')
-                            # if len(year) > 0:
-                            #     year = str(year[0])
-                            # else:
-                            #     year = ""
                             continue
+
+                        # Derive publication year for conferences
+                        if 'conf' in self.identifier:
+                            year = item.xpath(
+                                'cite[contains(@class, "data")]/meta[@itemprop="datePublished"]/@content')
+                            if len(year) == 0:
+                                year = item.xpath('cite[contains(@class, "data")]/a/span[@itemprop="datePublished"]/'
+                                                  'text()')
+                            if len(year) > 0:
+                                year = year[0]
+                            elif self.year:
+                                year = self.year
+                            else:
+                                year = ""
+                                logger.warning(
+                                    "No year found for " + self.uri + "#" + item.xpath('@id')[0] +
+                                    ". Please specify manually in input column 'year'.")
 
                         title = item.xpath('cite[contains(@class, "data")]/span[@itemprop="name"]'
                                            '/descendant-or-self::*/text()')
@@ -89,7 +117,7 @@ class Venue(object):
 
                         self.papers.append(Paper(
                             self.name,
-                            self.year,
+                            year,
                             self.identifier,
                             current_heading,
                             title,
