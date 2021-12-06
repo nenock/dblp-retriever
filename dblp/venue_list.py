@@ -51,15 +51,15 @@ class VenueList(object):
         self.filename = os.path.basename(input_file)
         logger.info(str(len(self.venues)) + " venues have been imported.")
 
-    def retrieve_papers(self):
+    def retrieve_papers(self, with_pages=False):
         for venue in self.venues:
-            venue.retrieve_papers()
+            venue.retrieve_papers(with_pages=with_pages)
 
     def validate_page_ranges(self):
         for venue in self.venues:
             venue.validate_page_ranges()
 
-    def write_to_csv(self, output_dir, delimiter):
+    def write_to_csv(self, output_dir, delimiter, with_pages=False):
         """
         Export papers retrieved from venues to a CSV file.
         :param output_dir: Target directory for generated CSV file.
@@ -80,7 +80,7 @@ class VenueList(object):
             logger.info('Exporting papers to ' + file_path + '...')
             writer = csv.writer(fp, delimiter=delimiter)
 
-            column_names = Paper.get_column_names()
+            column_names = Paper.get_column_names(with_pages=with_pages)
 
             # write header of CSV file
             writer.writerow(column_names)
@@ -88,7 +88,7 @@ class VenueList(object):
             count = 0
             for venue in self.venues:
                 try:
-                    for row in venue.get_rows():
+                    for row in venue.get_rows(with_pages=with_pages):
                         if len(row) == len(column_names):
                             writer.writerow(row)
                             count = count + 1

@@ -29,6 +29,20 @@ def get_argument_parser():
         help='delimiter for CSV files (default: \',\')',
         dest='delimiter'
     )
+    arg_parser.add_argument(
+        '-v', '--valdidating-page-ranges',
+        required=False,
+        default=False,
+        help='Enable page range validation with True (default: False)',
+        dest='page_validation'
+    )
+    arg_parser.add_argument(
+        '-p', '--pages',
+        required=False,
+        default=False,
+        help="Save paper's page ranges and length with True (default: False)",
+        dest='pages'
+    )
     return arg_parser
 
 
@@ -40,8 +54,9 @@ def main():
     # process venues
     venue_list = VenueList()
     venue_list.read_from_csv(args.input_file, args.delimiter)
-    venue_list.retrieve_papers()
-    venue_list.validate_page_ranges()
+    venue_list.retrieve_papers(with_pages=args.pages)
+    if args.page_validation:
+        venue_list.validate_page_ranges()
     venue_list.write_to_csv(args.output_dir, args.delimiter)
 
 

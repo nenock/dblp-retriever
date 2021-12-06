@@ -24,7 +24,7 @@ class Venue(object):
         # session for data retrieval
         self.session = requests.Session()
 
-    def retrieve_papers(self):
+    def retrieve_papers(self, with_pages=False):
         try:
             # retrieve data
             response = self.session.get(self.uri)
@@ -90,11 +90,14 @@ class Venue(object):
                         else:
                             title = ""
 
-                        pages = item.xpath('cite[contains(@class, "data")]/span[@itemprop="pagination"]/text()')
-                        if len(pages) > 0:
-                            pages = str(pages[0])
+                        if with_pages:
+                            pages = item.xpath('cite[contains(@class, "data")]/span[@itemprop="pagination"]/text()')
+                            if len(pages) > 0:
+                                pages = str(pages[0])
+                            else:
+                                pages = ""
                         else:
-                            pages = ""
+                            pages = None
 
                         ee = item.xpath('nav[@class="publ"]/ul/li[@class="drop-down"]/div[@class="head"]/a/@href')
                         if len(ee) > 0:
@@ -165,10 +168,10 @@ class Venue(object):
 
             previous_paper = self.papers[i]
 
-    def get_rows(self):
+    def get_rows(self, with_pages=False):
         rows = []
         for paper in self.papers:
-            rows.append(paper.get_column_values())
+            rows.append(paper.get_column_values(with_pages=with_pages))
         return rows
 
     def __str__(self):
