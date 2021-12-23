@@ -39,6 +39,7 @@ class Venue(object):
 
                 current_heading = ""
 
+                paper_number = 0
                 for item in items:
                     if item.tag == "h2" or item.tag == "h3":
                         # Derive publication year for journals
@@ -131,8 +132,12 @@ class Venue(object):
                             pages,
                             ee
                         ))
+                        paper_number = paper_number + 1
 
-                logger.info("Successfully parsed TOC of venue: " + str(self))
+                if paper_number > 0:
+                    logger.info(f"Successfully parsed TOC of venue: {str(self)} with a paper number of: {paper_number}")
+                else:
+                    logger.error(f"Could not derive any papers from {str(self)}")
             else:
                 logger.error("An error occurred while retrieving TOC of venue: " + str(self))
 
