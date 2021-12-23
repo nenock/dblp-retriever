@@ -64,7 +64,7 @@ class Venue(object):
                             current_heading = ""
                     elif item.tag == "li":
                         # Entries without heading are not listed, see https://dblp.org/db/conf/vldb/vldb2007.html e.g.
-                        if current_heading == "":
+                        if item.attrib['class'] not in ('entry article', 'entry inproceedings'):
                             continue
 
                         # Derive publication year for conferences
