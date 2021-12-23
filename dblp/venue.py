@@ -114,12 +114,13 @@ class Venue(object):
 
                         authors = item.xpath('cite[contains(@class, "data")]/span[@itemprop="author"]/a'
                                              '/span[@itemprop="name"]/text()')
-                        if len(authors) == 1:
-                            authors = str(authors[0])
-                        else:
-                            authors = "; ".join(authors)
+                        pids = item.xpath('cite[contains(@class, "data")]/span[@itemprop="author"]/a/@href')
+                        pids = [pid.replace('.html', '').replace('https://dblp.org/pid/', '') for pid in pids]
 
-                        paper_id = item.attrib['id']
+                        authors_info = [pids[i] + ': ' + author for i, author in enumerate(authors)]
+                        authors_info = "; ".join(authors_info)
+
+                        paper_id = self.uri + '#' + item.attrib['id']
 
                         self.papers.append(Paper(
                             self.name,
@@ -128,7 +129,7 @@ class Venue(object):
                             current_heading,
                             paper_id,
                             title,
-                            authors,
+                            authors_info,
                             pages,
                             ee
                         ))
